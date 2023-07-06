@@ -19,8 +19,11 @@ import android.widget.Toast;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
+import androidx.core.app.NotificationCompat;
+import androidx.core.app.NotificationManagerCompat;
 
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -78,7 +81,7 @@ public class BluetoothActivity extends AppCompatActivity {
         deviceListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                BluetoothDevice selectedDevice = bluetoothDevices.get(position);
+                BluetoothDevice selectedDevice = bluetoothDevices.get(i);
                 connectToDevice(selectedDevice);
             }
         });
@@ -147,6 +150,44 @@ public class BluetoothActivity extends AppCompatActivity {
         }
     }
 
+    private void showNotification(String message) {
+        createNotificationChannel();
 
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(this, CHANNEL_ID)
+                .setContentTitle("Bluetooth Sharing")
+                .setContentText(message)
+                .setPriority(NotificationCompat.PRIORITY_DEFAULT);
+
+        NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this);
+        notificationManager.notify(NOTIFICATION_ID, builder.build());
     }
+
+    private void createNotificationChannel() {
+    }
+
+    private void sendImageToSelectedDevice() {
+        if (bluetoothSocket == null || !bluetoothSocket.isConnected()) {
+            Toast.makeText(this, "Keine Verbindung zu einem Gerät hergestellt", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        if (selectedImage == null) {
+            Toast.makeText(this, "Kein Bild ausgewählt", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        try {
+            OutputStream outputStream = bluetoothSocket.getOutputStream();
+            selectedImage.compress(Bitmap.CompressFormat.JPEG, 100, outputStream);
+            outputStream.flush();
+            outputStream.close();
+            showNotification("Bild erfolgreich gesendet");
+        } catch (IOException e) {
+            e.printStackTrace();
+            showNotification("Fehler beim Senden des Bildes");
+        }
+    }
+
+
+}
 
