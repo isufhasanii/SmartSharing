@@ -1,34 +1,52 @@
 package com.example.smartsharing;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.ListView;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
+import java.util.List;
+
 public class BluetoothActivity extends AppCompatActivity {
 
+    private static final int REQUEST_IMAGE_CAPTURE = 1;
+    private static final int REQUEST_IMAGE_SELECT = 2;
+    private static final String CHANNEL_ID = "bluetooth_channel";
+    private static final int NOTIFICATION_ID = 1;
     private static final int REQUEST_ENABLE_BLUETOOTH = 1;
-    private Button bluetoothDeviceFinden;
-    private Button connectButton;
 
-    private BluetoothAdapter bluetoothAdapter;
-    private BluetoothSocket bluetoothSocket;
+    Button bluetoothDeviceFinden;
+    Button connectButton;
+    private ListView deviceListView;
+
+    BluetoothAdapter bluetoothAdapter;
+    BluetoothSocket bluetoothSocket;
+    private List<BluetoothDevice> bluetoothDevices;
+    private ArrayAdapter<String> deviceAdapter;
+    private Bitmap selectedImage;
 
     @Override
-    protected void onCreate(@Nullable Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_bluetooth);
 
         bluetoothDeviceFinden = findViewById(R.id.bluetoothDeviceFinden);
         connectButton = findViewById(R.id.connectButton);
+        deviceListView = findViewById(R.id.bluetoothDeviceList);
 
         bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         if (bluetoothAdapter == null) {
@@ -36,6 +54,13 @@ public class BluetoothActivity extends AppCompatActivity {
             Toast.makeText(this, "Bluetooth wird auf diesem Gerät nicht unterstützt", Toast.LENGTH_SHORT).show();
             return;
         }
+
+        bluetoothDeviceFinden.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                bluetoothGerätFinden();
+            }
+        });
 
         if (!bluetoothAdapter.isEnabled()) {
             Intent enableBluetoothIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);

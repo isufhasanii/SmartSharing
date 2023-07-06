@@ -10,4 +10,37 @@
     android:textAlignment="center"
     tools:context=".BluetoothActivity">
 
+    <Button
+        android:id="@+id/bluetoothDeviceFinden"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Bluetooth finden"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.818"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.152" />
+
+    <Button
+        android:id="@+id/connectButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="senden"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.818"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.806" />
+
+    <ListView
+        android:id="@+id/bluetoothDeviceList"
+        android:layout_width="409dp"
+        android:layout_height="397dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.455" />
 </androidx.constraintlayout.widget.ConstraintLayout>
