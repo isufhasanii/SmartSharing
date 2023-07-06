@@ -4,12 +4,16 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.view.View;
 import android.widget.Button;
 import android.content.Intent;
+
+import java.io.IOException;
+import java.io.InputStream;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -48,7 +52,7 @@ public class MainActivity extends AppCompatActivity {
         setting.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View view) {
-               openSettingIntent();
+                openSettingIntent();
             }
         });
 
@@ -71,7 +75,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void kameraIntent() {
-        Intent fotoaufnehmenIntent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+        Intent fotoaufnehmenIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         if (fotoaufnehmenIntent.resolveActivity(getPackageManager()) != null){
             startActivityForResult(fotoaufnehmenIntent, REQUEST_IMAGE_CAPTURE);
         }
@@ -88,13 +92,30 @@ public class MainActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if (resultCode == RESULT_OK){
-            if (requestCode == REQUEST_IMAGE_CAPTURE){
+        if (resultCode == RESULT_OK) {
+            if (requestCode == REQUEST_IMAGE_CAPTURE) {
                 Bundle extras = data.getExtras();
                 Bitmap imageBitmap = (Bitmap) extras.get("data");
+                openBluetoothActivity(imageBitmap);
             } else if (requestCode == REQUEST_IMAGE_SELECT) {
                 Uri selectedImageUri = data.getData();
+                Bitmap imageBitmap = loadBitmapFromUri(selectedImageUri);
+                openBluetoothActivity(imageBitmap);
             }
         }
+    }
+    private Bitmap loadBitmapFromUri(Uri uri) {
+        try {
+            InputStream inputStream = getContentResolver().openInputStream(uri);
+            return BitmapFactory.decodeStream(inputStream);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+    private void openBluetoothActivity(Bitmap imageBitmap) {
+        Intent bluetoothIntent = new Intent(this, BluetoothActivity.class);
+        bluetoothIntent.putExtra("imageBitmap", imageBitmap);
+        startActivity(bluetoothIntent);
     }
 }

@@ -2,12 +2,15 @@ package com.example.smartsharing;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
@@ -17,6 +20,7 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
@@ -55,6 +59,10 @@ public class BluetoothActivity extends AppCompatActivity {
         connectButton = findViewById(R.id.connectButton);
         deviceListView = findViewById(R.id.bluetoothDeviceList);
 
+        if (getIntent().hasExtra("imageBitmap")) {
+            selectedImage = getIntent().getParcelableExtra("imageBitmap");
+        }
+
         bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         if (bluetoothAdapter == null) {
             //Toast-Text falls kein Bluetooth möglich ist
@@ -65,7 +73,7 @@ public class BluetoothActivity extends AppCompatActivity {
         bluetoothDeviceFinden.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                bluetoothGerätFinden();
+                discoverBluetoothDevices();
             }
         });
 
@@ -151,7 +159,9 @@ public class BluetoothActivity extends AppCompatActivity {
     }
 
     private void showNotification(String message) {
-        createNotificationChannel();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            createNotificationChannel();
+        }
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this, CHANNEL_ID)
                 .setContentTitle("Bluetooth Sharing")
@@ -162,7 +172,17 @@ public class BluetoothActivity extends AppCompatActivity {
         notificationManager.notify(NOTIFICATION_ID, builder.build());
     }
 
+
     private void createNotificationChannel() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            CharSequence name = getString(R.string.channel_name);
+            String description = getString(R.string.channel_description);
+            int importance = NotificationManager.IMPORTANCE_DEFAULT;
+            NotificationChannel channel = new NotificationChannel(CHANNEL_ID, name, importance);
+            channel.setDescription(description);
+            NotificationManager notificationManager = getSystemService(NotificationManager.class);
+            notificationManager.createNotificationChannel(channel);
+        }
     }
 
     private void sendImageToSelectedDevice() {
