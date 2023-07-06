@@ -20,7 +20,10 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 public class BluetoothActivity extends AppCompatActivity {
 
@@ -105,6 +108,42 @@ public class BluetoothActivity extends AppCompatActivity {
         if (bluetoothAdapter.isDiscovering()) {
             Toast.makeText(this, "Suche läuft bereits", Toast.LENGTH_SHORT).show();
             return;
+        }
+
+        deviceAdapter.clear();
+        bluetoothDevices = new ArrayList<>();
+    }
+
+    private void connectToDevice(BluetoothDevice device) {
+        UUID uuid = UUID.randomUUID();
+
+        try {
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
+                // TODO: Consider calling
+                //    ActivityCompat#requestPermissions
+                // here to request the missing permissions, and then overriding
+                //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                //                                          int[] grantResults)
+                // to handle the case where the user grants the permission. See the documentation
+                // for ActivityCompat#requestPermissions for more details.
+                return;
+            }
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
+                // TODO: Consider calling
+                //    ActivityCompat#requestPermissions
+                // here to request the missing permissions, and then overriding
+                //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                //                                          int[] grantResults)
+                // to handle the case where the user grants the permission. See the documentation
+                // for ActivityCompat#requestPermissions for more details.
+                return;
+            }
+            bluetoothSocket = device.createRfcommSocketToServiceRecord(uuid);
+            bluetoothSocket.connect();
+            Toast.makeText(this, "Verbindung hergestellt mit " + device.getName(), Toast.LENGTH_SHORT).show();
+        } catch (IOException e) {
+            e.printStackTrace();
+            Toast.makeText(this, "Verbindung konnte nicht hergestellt werden", Toast.LENGTH_SHORT).show();
         }
     }
 
