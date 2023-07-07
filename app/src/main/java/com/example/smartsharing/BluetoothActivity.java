@@ -40,6 +40,10 @@ public class BluetoothActivity extends AppCompatActivity {
     private static final int NOTIFICATION_ID = 1;
     private static final int REQUEST_ENABLE_BLUETOOTH = 1;
 
+    Button settingBluetooth;
+    Button infoBluetooth;
+
+
     Button bluetoothDeviceFinden;
     Button connectButton;
     private ListView deviceListView;
@@ -50,6 +54,7 @@ public class BluetoothActivity extends AppCompatActivity {
     private ArrayAdapter<String> deviceAdapter;
     private Bitmap selectedImage;
 
+    @SuppressLint("MissingInflatedId")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -58,6 +63,22 @@ public class BluetoothActivity extends AppCompatActivity {
         bluetoothDeviceFinden = findViewById(R.id.bluetoothDeviceFinden);
         connectButton = findViewById(R.id.connectButton);
         deviceListView = findViewById(R.id.bluetoothDeviceList);
+        settingBluetooth = findViewById(R.id.settingBluetooth);
+        infoBluetooth = findViewById(R.id.infoBluetooth);
+
+        settingBluetooth.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View view) {
+                openSettingIntent();
+            }
+        });
+
+        infoBluetooth.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View view) {
+                openInfoIntent();
+            }
+        });
 
         if (getIntent().hasExtra("imageBitmap")) {
             selectedImage = getIntent().getParcelableExtra("imageBitmap");
@@ -93,6 +114,16 @@ public class BluetoothActivity extends AppCompatActivity {
                 connectToDevice(selectedDevice);
             }
         });
+    }
+
+    private void openInfoIntent() {
+        Intent infoViewIntent = new Intent(this, InfoActivity.class);
+        startActivity(infoViewIntent);
+    }
+
+    private void openSettingIntent() {
+        Intent settingViewIntent = new Intent(this, SettingActivity.class);
+        startActivity(settingViewIntent);
     }
 
     private void discoverBluetoothDevices() {

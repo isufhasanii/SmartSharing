@@ -47,7 +47,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.323"
-        app:srcCompat="@drawable/whatsapp_image_2023_07_05_at_09_13_42" />
+        app:srcCompat="@drawable/logo" />
 
     <TextView
         android:id="@+id/titel"
