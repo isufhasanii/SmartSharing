@@ -48,7 +48,7 @@ public class MainActivity extends AppCompatActivity {
                     Bitmap imageBitmap = (Bitmap) data.getExtras().get("data");
                     openBluetoothActivity(imageBitmap);
                 } else {
-                    // Benutzer hat die Aufnahme abgebrochen oder ein Fehler ist aufgetreten
+                    Toast.makeText(this, "Fehler bei Bildübertrag", Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -61,7 +61,7 @@ public class MainActivity extends AppCompatActivity {
                     Bitmap imageBitmap = loadBitmapFromUri(selectedImageUri);
                     openBluetoothActivity(imageBitmap);
                 } else {
-                    // Benutzer hat die Auswahl abgebrochen oder ein Fehler ist aufgetreten
+                    Toast.makeText(this, "Fehler bei Bildübertrag", Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -127,8 +127,6 @@ public class MainActivity extends AppCompatActivity {
 
     private void openBluetoothActivity(Bitmap imageBitmap) {
         Intent bluetoothIntent = new Intent(this, BluetoothActivity.class);
-        // Hier kannst du das Bild an die BluetoothActivity übergeben, z.B. als ByteArray
-        // bluetoothIntent.putExtra("imageData", imageBitmap.toByteArray());
         startActivity(bluetoothIntent);
     }
 }
