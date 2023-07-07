@@ -65,6 +65,11 @@ public class BluetoothActivity extends AppCompatActivity {
     private ArrayAdapter<BluetoothDeviceModel> deviceAdapter;
     private Bitmap selectedImage;
 
+    public void setSelectedImage(Bitmap selectedImage) {
+        this.selectedImage = selectedImage;
+    }
+
+
     private Timer searchTimer;
 
     @Override
@@ -191,7 +196,7 @@ public class BluetoothActivity extends AppCompatActivity {
         startActivity(settingViewIntent);
     }
 
-    private void discoverBluetoothDevices() {
+    void discoverBluetoothDevices() {
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_SCAN) != PackageManager.PERMISSION_GRANTED) {
             // TODO: Consider calling
             //    ActivityCompat#requestPermissions
@@ -337,7 +342,7 @@ public class BluetoothActivity extends AppCompatActivity {
         unregisterReceiver(deviceDiscoveryReceiver);
     }
 
-    private void connectToDevice(String deviceAddress) {
+    void connectToDevice(String deviceAddress) {
         BluetoothDevice device;
         UUID uuid;
         if (deviceAddress.equals(TARGET_DEVICE_ADDRESS)) {
