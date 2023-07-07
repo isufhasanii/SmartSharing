@@ -1,9 +1,10 @@
 package com.example.smartsharing;
 
-import androidx.annotation.Nullable;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.content.pm.PackageManager;
+import android.app.Activity;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
@@ -27,6 +28,9 @@ public class MainActivity extends AppCompatActivity {
     Button setting;
     Button info;
 
+    ActivityResultLauncher<Intent> kameraLauncher;
+    ActivityResultLauncher<Intent> galerieLauncher;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -36,6 +40,31 @@ public class MainActivity extends AppCompatActivity {
         auswaehlenFoto = findViewById(R.id.auswaehlenFoto);
         setting = findViewById(R.id.setting);
         info = findViewById(R.id.info);
+
+        kameraLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
+            if (result.getResultCode() == Activity.RESULT_OK) {
+                Intent data = result.getData();
+                if (data != null && data.hasExtra("data")) {
+                    Bitmap imageBitmap = (Bitmap) data.getExtras().get("data");
+                    openBluetoothActivity(imageBitmap);
+                } else {
+                    // Benutzer hat die Aufnahme abgebrochen oder ein Fehler ist aufgetreten
+                }
+            }
+        });
+
+        galerieLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
+            if (result.getResultCode() == Activity.RESULT_OK) {
+                Intent data = result.getData();
+                if (data != null && data.getData() != null) {
+                    Uri selectedImageUri = data.getData();
+                    Bitmap imageBitmap = loadBitmapFromUri(selectedImageUri);
+                    openBluetoothActivity(imageBitmap);
+                } else {
+                    // Benutzer hat die Auswahl abgebrochen oder ein Fehler ist aufgetreten
+                }
+            }
+        });
 
         aufnehmenFoto.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -77,47 +106,15 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void kameraIntent() {
-        if (getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA_ANY)) {
-            Intent fotoaufnehmenIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-            if (fotoaufnehmenIntent.resolveActivity(getPackageManager()) != null) {
-                startActivityForResult(fotoaufnehmenIntent, REQUEST_IMAGE_CAPTURE, null);
-            } else {
-                // Keine Kamera-App verfügbar
-                Toast.makeText(this, "Keine Kamera-App verfügbar", Toast.LENGTH_SHORT).show();
-            }
-        } else {
-            // Keine Kamera auf dem Gerät vorhanden
-            Toast.makeText(this, "Keine Kamera auf dem Gerät vorhanden", Toast.LENGTH_SHORT).show();
-        }
+        Intent fotoaufnehmenIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        kameraLauncher.launch(fotoaufnehmenIntent);
     }
 
-
-    private void galleryIntent(){
+    private void galleryIntent() {
         Intent fotoauswaehlenIntent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-        if (fotoauswaehlenIntent.resolveActivity(getPackageManager()) != null){
-            startActivityForResult(fotoauswaehlenIntent, REQUEST_IMAGE_SELECT, null);
-        } else {
-            // Keine Galerie-App verfügbar
-            Toast.makeText(this, "Keine Galerie-App verfügbar", Toast.LENGTH_SHORT).show();
-        }
+        galerieLauncher.launch(fotoauswaehlenIntent);
     }
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-
-        if (resultCode == RESULT_OK) {
-            if (requestCode == REQUEST_IMAGE_CAPTURE) {
-                Bundle extras = data.getExtras();
-                Bitmap imageBitmap = (Bitmap) extras.get("data");
-                openBluetoothActivity(imageBitmap);
-            } else if (requestCode == REQUEST_IMAGE_SELECT) {
-                Uri selectedImageUri = data.getData();
-                Bitmap imageBitmap = loadBitmapFromUri(selectedImageUri);
-                openBluetoothActivity(imageBitmap);
-            }
-        }
-    }
     private Bitmap loadBitmapFromUri(Uri uri) {
         try {
             InputStream inputStream = getContentResolver().openInputStream(uri);
@@ -127,9 +124,11 @@ public class MainActivity extends AppCompatActivity {
         }
         return null;
     }
+
     private void openBluetoothActivity(Bitmap imageBitmap) {
         Intent bluetoothIntent = new Intent(this, BluetoothActivity.class);
-        bluetoothIntent.putExtra("imageBitmap", imageBitmap);
+        // Hier kannst du das Bild an die BluetoothActivity übergeben, z.B. als ByteArray
+        // bluetoothIntent.putExtra("imageData", imageBitmap.toByteArray());
         startActivity(bluetoothIntent);
     }
 }
